@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.dunk.mapper.CategoryMapper">
+
+<sql id="criteria">
+		<foreach collection="typeArr" item="type" separator="OR" open="AND (" close=")">
+			<if test='type.equals("")'>
+				1=1
+			</if>
+			<!-- 해시태그 -->
+			<if test='type.equals("t")'>
+				tag like concat('%',#{keyword},'%')
+			</if>
+			<!-- 목록 -->
+			<if test='type.equals("l")'>
+				ingr_category like concat('%',#{keyword},'%')
+			</if>
+		</foreach>
+	</sql>
+
+
+<select resultType="com.dunk.domain.CategoryVO" 
+id="get">select * from tbl_category where cno > 0 and cno = #{cno} 
+</select>
+
+<select resultType="com.dunk.domain.CategoryVO" id="getList">
+select * from tbl_category where cno > 0 
+</select>
+
+<insert id="insert">
+insert into tbl_category ( ingr_category, tag, expirationdate ) values (#{ingr_category} , #{tag}, #{ expirationdate }) 
+</insert>
+
+<delete id="delete">
+delete from tbl_category  where cno = #{cno} 
+</delete>
+
+<update id="update">
+update tbl_category 
+set ingr_category = #{ingr_category}, tag = #{tag}, expirationdate = #{expirationdate} 
+where cno = #{cno} 
+</update>
+
+	<select id="nextCno" resultType="Long">
+		select last_insert_id()
+	</select>
+
+ 	<!-- 페이징 처리 --> 	
+ <select id="getListWithPaging" resultType="com.dunk.domain.CategoryVO"
+	parameterType="com.dunk.domain.Criteria">
+		select * from tbl_category
+		where cno > 0
+		<include refid="criteria"></include>
+		order by cno desc limit #{skip}, #{amount}
+	</select>
+	
+<select id="getTotal" resultType="int">
+		select count(*)
+		 from tbl_category
+		 where cno > 0
+		 <include refid="criteria"></include>
+</select>
+	<!-- 페이징 끝 -->
+
+</mapper>

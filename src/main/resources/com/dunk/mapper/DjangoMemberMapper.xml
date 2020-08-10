@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ 
+ 
+ <mapper namespace="com.dunk.mapper.DjangoMemberMapper">
+ 
+ 	<sql id="criteria">
+		<foreach collection="typeArr" item="type" separator="OR"
+			open="and (" close=")">
+			<if test='type.equals("")'>
+			 1=1
+			</if>
+			<if test='type.equals("n")'>
+				id like concat('%',#{keyword},'%')
+			</if>
+			<if test='type.equals("r")'>
+				name like concat('%',#{keyword},'%')
+			</if>
+			
+		</foreach>
+	</sql>
+ 
+ 	<!-- 사용자 이름 추가. -->
+ 	<insert id="insertUser" parameterType="com.dunk.domain.DjangoMemberVO">
+ 	insert into django_member (id,name,password) values ( #{id}, #{name}, #{password} )
+ 	</insert>
+ 	
+ 	<!-- 전체 사용자 조회.  -->
+ 	<select id="getList" resultType="com.dunk.domain.DjangoMemberVO">
+ 		select * from django_member order by mno desc
+ 	</select>
+ 
+ 	<!-- 사용자 삭제. -->
+ 	<delete id="delete" parameterType="string">
+ 	delete from django_member where id = #{id}
+ 	</delete>
+ 	
+ 	<select id="get" resultType="com.dunk.domain.DjangoMemberVO">
+ 		select * from django_member where id = #{id}
+ 	</select>
+ 	
+ 	<!-- 사용자 수정. -->
+ 	<update id="update" parameterType="com.dunk.domain.DjangoMemberVO">
+ 		update django_member set id=#{id} , name=#{name}, password=#{password} where mno=#{mno}
+ 	</update>
+ 	<!-- 페이징 처리 --> 	
+ <select id="getListWithPaging" resultType="com.dunk.domain.DjangoMemberVO"
+	parameterType="com.dunk.domain.Criteria">
+		select * from django_member
+		where  1=1
+		<include refid="criteria"></include>
+		order by mno desc limit #{skip}, #{amount}
+	</select>
+	
+<select id="getTotal" resultType="int">
+		select count(*)
+		 from django_member
+		 where 1=1
+		 <include refid="criteria"></include>
+</select>
+	<!-- 페이징 끝 -->
+ </mapper>

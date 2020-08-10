@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dunk.mapper.NoticeAttachMapper">
+
+    <insert id="insert">
+    	insert into tbl_noticeAttach (uuid, uploadPath, filename, filetype, nno)
+		values(#{uuid},#{uploadPath},#{fileName}, #{filetype}, #{nno})
+    </insert>
+    
+    <delete id="delete">
+    	delete from tbl_noticeAttach
+    	where uuid = #{uuid}
+    </delete>
+    
+    <delete id="deleteAll">
+    	delete from tbl_noticeAttach
+    	where nno = #{nno}
+    </delete>
+    
+    <select id="findByNno" resultType="com.dunk.domain.NoticeAttachVO">
+    	select * from tbl_noticeAttach
+    	where nno = #{nno}
+    </select>
+
+</mapper>

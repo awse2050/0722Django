@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+
+	<!-- Hikari Setting -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+
+		<property name="driverClassName"
+			value="com.mysql.cj.jdbc.Driver"></property>
+		<property name="jdbcUrl"
+			value="jdbc:mysql://slamdunk.cmehaeupoxla.us-east-2.rds.amazonaws.com/django?serverTimezone=Asia/Seoul"></property>
+		<property name="username" value="slamdunk"></property>
+		<property name="password" value="slamdunk"></property>
+		<property name="maximumPoolSize" value="5" />
+	</bean>
+	<!-- HikariCP configuration -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+		destroy-method="close">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+	<!-- Transaction -->
+	<bean id="transactionManager"
+	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	   	<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!-- MyBatis Setting -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	
+	<tx:annotation-driven/>
+	<!-- END Transaction -->
+
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>	
+
+	<!-- Spring - MyBatis 연동 -->
+	<mybatis-spring:scan base-package="com.dunk.mapper" />
+
+	<context:component-scan
+		base-package="com.dunk.service" />
+	<context:component-scan base-package="com.dunk.aop">
+	</context:component-scan>
+
+	<!-- Quartz -->
+	<task:annotation-driven/>
+	<context:component-scan base-package="com.dunk.task"></context:component-scan>
+	<!-- 크론을 사용하기 위한 빈 설정. -->
+	<context:component-scan base-package="com.dunk.domain"></context:component-scan>
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:annotation-config></context:annotation-config>
+	<context:component-scan base-package="com.dunk.service"></context:component-scan>
+	<context:component-scan base-package="com.dunk.aop"></context:component-scan>
+
+	<!-- 테스트용 잡 -->
+<!--  	<bean id="testJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="AlertToDataService"/>
+		<property name="targetMethod" value="send"/>
+		<property name="concurrent" value="false"/>
+	</bean>  -->
+	<!-- 테스트용 트리거 -->
+<!--  	<bean id="testJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="testJob"/>
+		CronTrigger로  실행하기.				초,분,시,일,월,요일,연도	 0 0/1 * 1/1 * ? *
+		<property name="cronExpression" value= "0/30 * * 1/1 * ? *"/>
+	</bean> -->
+	<!-- 앞에 설정한 트리거를 등록. -->
+<!--  	<bean id="testJobScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list><ref bean="testJobTrigger"/></list>
+		</property>
+	</bean>  -->
+
+</beans>
+

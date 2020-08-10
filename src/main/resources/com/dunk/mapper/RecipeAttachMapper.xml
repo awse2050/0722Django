@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.dunk.mapper.RecipeAttachMapper">
+    <insert id="insert">
+    	insert into tbl_recipeAttach (uuid, uploadPath, filename, filetype, recipe_no)
+		values(#{uuid},#{uploadPath},#{fileName}, #{filetype}, #{recipe_no})
+    </insert>
+    
+    <delete id="delete">
+    	delete from tbl_recipeAttach
+    	where uuid = #{uuid}
+    </delete>
+    
+    <delete id="deleteAll">
+    	delete from tbl_recipeAttach
+    	where recipe_no = #{recipe_no}
+    </delete>
+    
+    <select id="findByRecipe_no" resultType="com.dunk.domain.RecipeAttachVO">
+    	select * from tbl_recipeAttach
+    	where recipe_no = #{recipe_no}
+    </select>
+    
+    <select id="getOldFiles" resultType="com.dunk.domain.RecipeAttachVO">
+    	select * from tbl_recipeAttach
+		where uploadPath = date_format(date_sub(now(), INTERVAL 1 day),'%Y-%m-%d')
+    </select>
+    	
+    </mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dunk.mapper.AlertToDataMapper">
+
+	<!--  알람을 넣어야 하는 데이터들을 모두 수집합니다.  -->
+	<select id="getList" resultType="com.dunk.domain.AlertToDataVO">
+	select * from tbl_alert_data
+	</select>
+
+	<!-- 메세지를 보내는 기능을 실행을 하고 난 후, 기존에 보냈던 메세지를 DB에서 삭제하는 기능.-->
+	<delete id="delete">
+		delete from tbl_alert_data
+	</delete>
+	
+<!-- 사용자, 식재료, 토큰을 넣습니다.
+사용자테이블과 식재료 테이블을 비교해서 유통기한이 3일 남은 식재료를 가진 사람의 정보(이름,식재료이름,그 사람의 고유 토큰)을
+가져와서 알림을 넣을 데이터로 사용합니다. -->
+	<insert id="insert"> 
+		insert into tbl_alert_data (username, ingr_name , token)
+		select u.username, u.ingr_name , s.token
+		from user_fridge u join django_member s 
+		where u.username = s.id and date_format(u.expirationdate, "%y-%c-%e")
+		= (select date_format((select DATE_add(NOW(), INTERVAL 3 DAY)as day),
+		"%y-%c-%e"))
+	
+	</insert>
+	
+</mapper>
+
+	

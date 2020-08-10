@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+  <mapper namespace="com.dunk.mapper.UserFridgeMapper">
+	
+
+ 	<!-- 사용자가 가지고있는 재료들의 정보를 출력. -->
+ 	<select id="get" resultType="com.dunk.domain.UserFridgeVO">
+ 		select * from user_fridge where username = #{username}
+ 	</select>
+ 	
+ 	<!-- 사용자의 재료를 수정. -->
+ 	<!-- alias를 서브쿼리마다 넣어야한다.  -->
+ 	<update id="update" parameterType="com.dunk.domain.UserFridgeVO">
+ 		update user_fridge
+ 		set cno = #{cno}, ingr_name = #{ingr_name}, updatedate = now(),
+ 		expirationdate = (select * from (select date_add(regdate , interval (<include refid="getDate"></include>) Day) as tmp) as tmp)
+ 		where fno = #{fno} 
+ 	</update>
+ 	<!-- 특정 사용자가 가진 재료를 모두 삭제한다. -->
+ 	<delete id="delete">
+ 		delete from user_fridge where username = #{username} 
+ 	</delete>
+ 	<!-- 사용자가 가진 재료중 하나의 재료를 삭제한다. -->
+ 	<delete id="fridgeDelete">
+ 		delete from user_fridge where fno = #{fno}
+ 	</delete>
+ 	<!--재료의 유효기간 계산. -->
+ <!-- 	<select id="date" resultType="date" parameterType="com.dunk.domain.CategoryVO">
+ 	select date_add(now() , interval #{expirationdate} Day)
+ 	</select> -->
+ 	
+ 	<!-- 추가 -->
+ 	<!-- 사용자의 재료 추가  -->
+ 	<insert id="insert" parameterType="com.dunk.domain.UserFridgeVO" >
+		insert into user_fridge (username , ingr_name ,cno, expirationdate) 
+		value (#{username} , #{ingr_name}, #{cno}, 
+		(select date_add(now() , interval (<include refid="getDate"></include>) Day)))
+	</insert> 	
+	<!-- 사용자가 재료등록시 유효기간을 계산할 서브쿼리용 -->
+	<sql id="getDate">
+	select c.expirationdate from tbl_category c join user_fridge f where c.cno = #{cno}  group by c.cno 
+	</sql>
+	
+	<select id="toDeleteList" resultType="com.dunk.domain.UserFridgeVO">
+		select * from user_fridge u 
+where date_format((select date_add(now() , interval 4 day)day), "%y-%c-%e") = date_format(u.expirationdate, "%y-%c-%e")
+	</select>
+	<select id="searchCategory" resultType="string">
+      select c.ingr_category from user_fridge u , tbl_category c
+      where c.tag like concat ('%', #{u.ingr_name}, '%')
+      group by c.tag;
+   </select>
+	
+ 	</mapper>

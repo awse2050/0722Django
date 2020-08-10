@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.dunk.mapper.CategoryAttachMapper">
+
+<insert id="insert">
+insert into category_attach (uuid, uploadpath, filename, filetype, cno)
+value (#{uuid}, #{uploadPath}, #{fileName}, #{filetype}, #{cno})
+</insert>
+
+<delete id="delete">
+delete from category_attach where uuid = #{uuid}
+</delete>
+
+<select id="findByCno" resultType="com.dunk.domain.CategoryAttachVO">
+select * from category_attach where cno = #{cno}
+</select>
+
+<delete id="deleteAll">
+	delete from category_attach
+	where cno = #{cno}
+</delete>
+
+</mapper>

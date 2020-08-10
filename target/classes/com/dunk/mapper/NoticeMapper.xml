@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dunk.mapper.NoticeMapper">
+
+<sql id="criteria">
+	<foreach collection="typeArr" item="type" separator="OR"
+	open="AND (" close=")">
+	<if test='type.equals("t")'>
+		title like concat('%',#{keyword},'%')
+	</if>
+	<if test='type.equals("c")'>
+		content like concat('%',#{keyword},'%')
+	</if>
+	<if test='type.equals("w")'>
+		writer like concat('%',#{keyword},'%')
+	</if>
+	</foreach>
+</sql>
+
+<insert id="insert">
+	insert into tbl_notice(title, content, writer)
+	values(#{title},#{content},#{writer})
+</insert>
+
+<select id="read" resultType="com.dunk.domain.NoticeVO">
+	select nno, title, content, writer, regdate, moddate
+	from tbl_notice
+	where nno > 0
+	and nno = #{nno}
+</select>
+
+<select id="getList" resultType="com.dunk.domain.NoticeVO"
+parameterType="com.dunk.domain.Criteria">
+	select nno, title, content, writer, regdate, moddate
+	from tbl_notice
+	where nno > 0
+	<include refid="criteria"></include>
+	order by nno desc
+	limit #{skip}, #{amount}
+</select>
+
+<select id="nextNno" resultType="Long"> 
+	select last_insert_id()	
+</select>
+
+<update id="update" parameterType="com.dunk.domain.NoticeVO">
+	update tbl_notice
+	set title = #{title},
+		content = #{content},
+		moddate = now()
+	where nno = #{nno}
+</update>
+
+<delete id="delete">
+	delete from tbl_notice
+	where nno > 0
+	and	nno = #{nno}
+</delete>
+
+<select id="getTotal" parameterType="com.dunk.domain.Criteria"
+resultType="int">
+	select count(*) 
+	from tbl_notice 
+	where nno > 0
+	<include refid="criteria"></include>
+	
+</select>
+
+</mapper>
